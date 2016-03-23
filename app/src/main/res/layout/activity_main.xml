@@ -17,4 +17,19 @@
         android:id="@+id/speechButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"/>
+
+    <Button android:text="おはよう"
+        android:id="@+id/goodmorning"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button android:text="こんにちは"
+        android:id="@+id/hello"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button android:text="おやすみ"
+        android:id="@+id/goodnight"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>
