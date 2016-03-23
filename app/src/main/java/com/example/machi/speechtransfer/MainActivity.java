@@ -37,8 +37,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         else {
+            EditText myEditText = (EditText)findViewById(R.id.speechText);
             Button pushedButton = (Button)view;
-            sendPostRequest(pushedButton.getText().toString(), SPEECH_SERVER, SPEECH_SERVER_PORT);
+            String buttonLabel = pushedButton.getText().toString();
+            myEditText.setText(buttonLabel);
+            sendPostRequest(buttonLabel, SPEECH_SERVER, SPEECH_SERVER_PORT);
         }
     }
 
