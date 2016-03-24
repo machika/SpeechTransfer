@@ -7,12 +7,19 @@
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
     android:orientation="vertical">
 
-    <EditText android:paddingLeft="20dp"
+    <LinearLayout android:layout_height="wrap_content"  android:layout_width="match_parent"
+        android:orientation="horizontal">
+     <EditText
         android:id="@+id/speechText"
-        android:text="" android:hint="ここにしゃべった内容が表示されます"
+        android:text="" android:hint="しゃべる内容"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"
+         android:layout_weight="10"/>
+        <Button android:text="送信"
+            android:id="@+id/sendButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
     <Button android:text="ここを押して何かしゃべって"
         android:id="@+id/speechButton"
         android:layout_width="fill_parent"

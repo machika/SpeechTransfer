@@ -1,9 +1,9 @@
 package com.example.machi.speechtransfer;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.speech.RecognizerIntent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,11 +17,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener {
     private final static int ICode = 0;
     private final static String SPEECH_SERVER = "192.168.0.254";
     private final static int SPEECH_SERVER_PORT = 10080;
     private final static String LOG_TAG = "SpeechTransfer";
+    public String m_msg;
 
     @Override
     public void onClick(View view) {
@@ -36,12 +37,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.e(LOG_TAG, "Speech recognize app doesn't exist!");
             }
         }
+        else if (view.getId() == R.id.sendButton) {
+            EditText myEditText = (EditText)findViewById(R.id.speechText);
+            m_msg = myEditText.getText().toString().trim();
+            if (!m_msg.isEmpty()) {
+                sendPostRequest();
+                myEditText.setText("");
+            }
+        }
         else {
             EditText myEditText = (EditText)findViewById(R.id.speechText);
             Button pushedButton = (Button)view;
             String buttonLabel = pushedButton.getText().toString();
             myEditText.setText(buttonLabel);
-            sendPostRequest(buttonLabel, SPEECH_SERVER, SPEECH_SERVER_PORT);
+            m_msg = buttonLabel;
+            sendPostRequest();
         }
     }
 
@@ -56,8 +66,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //TODO: Send this text to Raspberry pi (run some server)
             EditText myEditText = (EditText)findViewById(R.id.speechText);
             myEditText.setText(msg);
-
-            boolean result = sendPostRequest(msg, SPEECH_SERVER, SPEECH_SERVER_PORT);
+            m_msg = msg;
+            sendPostRequest();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -68,40 +78,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.speechButton).setOnClickListener(this);
+        findViewById(R.id.sendButton).setOnClickListener(this);
         findViewById(R.id.goodmorning).setOnClickListener(this);
         findViewById(R.id.hello).setOnClickListener(this);
         findViewById(R.id.goodnight).setOnClickListener(this);
     }
 
-    private boolean sendPostRequest(String msg, String url, int port) {
-        boolean result = true;
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) new URL("http", url, port, "").openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
-            conn.connect();
-            Log.i(LOG_TAG, "connected: server=" + url + ", port=" + String.valueOf(port));
+    private void sendPostRequest() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean result = true;
+                String url = SPEECH_SERVER;
+                int port = SPEECH_SERVER_PORT;
+                HttpURLConnection conn = null;
+                try {
+                    conn = (HttpURLConnection) new URL("http", url, port, "").openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+                    conn.connect();
+                    Log.i(LOG_TAG, "connected: server=" + url + ", port=" + String.valueOf(port));
 
-            DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-            os.write(msg.getBytes("UTF-8"));
-            os.flush();
-            os.close();
+                    m_msg = "あああああ、" + m_msg;  //Somehow aplay didn't play first sentence, so add dummy sentence
+                    DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                    os.write(m_msg.getBytes("UTF-8"));
+                    os.flush();
+                    os.close();
 
-            if( conn.getResponseCode() != HttpURLConnection.HTTP_OK ){
-                Log.e(LOG_TAG, "Server returned error code " + String.valueOf(conn.getResponseCode()));
-                result = false;
+                    if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                        Log.e(LOG_TAG, "Server returned error code " + String.valueOf(conn.getResponseCode()));
+                        result = false;
+                    }
+                } catch (IOException e) {
+                    Log.e(LOG_TAG, "Got exception during sendPostRequest(): " + e.getMessage());
+                    result = false;
+                } finally {
+                    if (conn != null) {
+                        conn.disconnect();
+                    }
+                }
             }
-        }catch(IOException e){
-            Log.e(LOG_TAG, "Got exception during sendPostRequest(): " + e.getMessage());
-            result = false;
-        }finally {
-            if( conn != null ){
-                conn.disconnect();
-            }
-        }
-        return result;
+        }).start();
     }
 }
