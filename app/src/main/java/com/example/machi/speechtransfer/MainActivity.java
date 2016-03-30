@@ -19,7 +19,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private final static int ICode = 0;
-    private final static String SPEECH_SERVER = "192.168.0.254";
+    //private final static String SPEECH_SERVER = "192.168.0.254";
+    private final static String SPEECH_SERVER = "machi0545.myhome.cx";
     private final static int SPEECH_SERVER_PORT = 10080;
     private final static String LOG_TAG = "SpeechTransfer";
 
