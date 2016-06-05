@@ -88,7 +88,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                boolean result = true;
                 String url = SPEECH_SERVER;
                 int port = SPEECH_SERVER_PORT;
                 HttpURLConnection conn = null;
@@ -109,11 +108,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
                     if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
                         Log.e(LOG_TAG, "Server returned error code " + String.valueOf(conn.getResponseCode()));
-                        result = false;
                     }
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Got exception during sendPostRequest(): " + e.getMessage());
-                    result = false;
                 } finally {
                     if (conn != null) {
                         conn.disconnect();
